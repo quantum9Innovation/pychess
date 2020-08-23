@@ -25,8 +25,8 @@ class Game(object):
             'b'/'B' -- BISHOP (WHITE/BLACK)
             'q'/'Q' -- QUEEN (WHITE/BLACK)
             'k'/'K' -- KING (WHITE/BLACK)
-        BOARD IS ALWAYS RENDERED FROM
-        WHITE'S PERSPECTIVE
+        BOARD IS ALWAYS STORED FROM
+        WHITE'S PERSPECTIVE (WHITE ON 'TOP')
         """
 
         self.board = np.asarray([['_'] * 8] * 8)
@@ -49,8 +49,10 @@ class Game(object):
         for x in range(disp_board.shape[0]):
             for y in range(disp_board.shape[1]):
 
-                if disp_board[x, y] == '_':
-                    disp_board[x, y] = ' '
+                if disp_board[x, y] == '_' and (x % 2) == (y % 2):
+                    disp_board[x, y] = '■'
+                elif disp_board[x, y] == '_':
+                    disp_board[x, y] = '□'
                 if disp_board[x, y] == 'p':
                     disp_board[x, y] = '♙'
                 if disp_board[x, y] == 'P':
@@ -84,4 +86,35 @@ class Game(object):
         print(printed_result)
         return disp_board
 
+    def move(self, fro, to, prom=None, castling=False, en_passant=False):
+        """
+        THIS IS NOT A STANDARD CHESS MOVE
+        COORDINATES SHOULD BE IN FORM (Y, X)
+        DOES NOT CHECK IF MOVE IS LEGAL
+        MOVES PIECE ON FRO TO PIECE ON TO AND ALLOWS FOR PROMOTION, CAPTURES, AND EN PASSANT
+        CASTLING MUST BE DONE AS TWO SEPARATE MOVES (SET CASTLING=TRUE FOR FIRST MOVE)
+        """
 
+        self.board[to] = self.board[fro]
+        self.board[fro] = '_'
+
+        if en_passant:
+            # left capture
+            if to[1] == fro[1] - 1:
+                self.board[fro[0], fro[1] - 1] == '_'
+            # right capture
+            if to[1] == fro[1] + 1:
+                self.board[fro[0], fro[1] - 1] == '_'
+
+        # promotion
+        if prom:
+            self.board[to] = prom
+
+        # change turn
+        if not castling:
+            if self.turn == 'white':
+                self.turn == 'black'
+            else:
+                self.turn = 'white'
+
+        return self.board
